@@ -19,15 +19,29 @@ template <typename T,
 class AdjacencyList {
 private:
   unordered_map<uint, unordered_map<uint, T>> adjMap;
+  unordered_set<uint> fromVertices;
+  unordered_set<uint> toVertices;
+  unordered_set<uint>
+      totalVertices; // Ideally this just be a union of from/to but it would be
+                     // much faster to just keep track of total on insertion
+                     // since we dont support edge delete operations
 
 public:
-  void insertEdge(uint from, uint to, T weight) { adjMap[from][to] = weight; }
+  void insertEdge(uint from, uint to, T weight) {
+    adjMap[from][to] = weight;
 
-  bool isEdge(uint from, uint to) {
+    fromVertices.insert(from);
+    toVertices.insert(to);
+
+    totalVertices.insert(to);
+    totalVertices.insert(from);
+  }
+
+  const bool isEdge(uint from, uint to) {
     return adjMap[from].find(to) != adjMap[from].end();
   }
 
-  uint getWeight(uint from, uint to, T defaultValue = 0) {
+  const uint getWeight(uint from, uint to, T defaultValue = 0) {
     if (adjMap[from].find(to) == adjMap[from].end())
       return defaultValue;
 
@@ -35,7 +49,7 @@ public:
   }
 
   // Returns an unsorted list
-  vector<T> getEdges(uint vertex) {
+  const vector<T> getEdges(uint vertex) {
     vector<T> output;
 
     for (auto e : adjMap[vertex]) {
@@ -43,6 +57,24 @@ public:
     }
 
     return output;
+  }
+
+  const decltype(fromVertices) getFromVertices() { return fromVertices; }
+
+  const decltype(toVertices) getToVertices() { return toVertices; }
+
+  const decltype(totalVertices) getTotalVertices() { return totalVertices; }
+
+  const decltype(fromVertices.size()) getFromVerticesCount() {
+    return fromVertices.size();
+  }
+
+  const decltype(toVertices.size()) getToVerticesCount() {
+    return toVertices.size();
+  }
+
+  const decltype(totalVertices) getTotalVerticesCount() {
+    return totalVertices.size();
   }
 
   void printGraph(bool sorted = false) {
