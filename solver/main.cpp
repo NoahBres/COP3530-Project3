@@ -14,19 +14,21 @@ enum GraphSample {
 };
 GraphSample graphToUse = RandomGraph;
 int randomGraphCount = 50;
+unsigned int randomWeightMax = 50;
 
 int main() {
-  AdjacencyList graph;
+  AdjacencyList<unsigned int> graph;
 
   switch (graphToUse) {
   case RandomGraph:
     for (int i = 0; i < randomGraphCount; i++) {
       auto edge1 = std::rand() % randomGraphCount;
       auto edge2 = std::rand() % randomGraphCount;
+      auto weight = std::rand() % randomWeightMax;
 
       // Undirected graph -> directed
-      graph.insertEdge(edge1, edge2);
-      graph.insertEdge(edge2, edge1);
+      graph.insertEdge(edge1, edge2, weight);
+      graph.insertEdge(edge2, edge1, weight);
     }
     break;
   default:
