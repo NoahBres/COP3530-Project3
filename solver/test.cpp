@@ -49,3 +49,26 @@ TEST_CASE("Bellman Ford Negative Cycle", "[bf]") {
 
   CHECK_THROWS(BellmanFord(graph, 0, 3));
 }
+
+TEST_CASE("Bellman Ford Path", "[bf]") {
+  AdjacencyList<int> graph;
+
+  graph.insertEdge(0, 2, 4);
+  graph.insertEdge(1, 2, 10);
+  graph.insertEdge(1, 3, 2);
+  graph.insertEdge(1, 4, 2);
+  graph.insertEdge(3, 2, 5);
+  graph.insertEdge(2, 4, 15);
+  graph.insertEdge(2, 3, 1);
+  graph.insertEdge(2, 1, 1);
+  graph.insertEdge(3, 1, 2);
+  graph.insertEdge(3, 1, 1);
+
+  auto solution = BellmanFord(graph, 2, 4);
+
+  REQUIRE(solution.second.top() == 1);
+  solution.second.pop();
+  REQUIRE(solution.second.top() == 4);
+  solution.second.pop();
+  REQUIRE(solution.second.size() == 0);
+}
