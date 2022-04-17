@@ -1,2 +1,7 @@
+# Ignore files without extensions
+*
+!/**/
+!*.*
+
 .DS_STORE
 node_modules
