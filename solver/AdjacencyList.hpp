@@ -1,3 +1,5 @@
+#pragma once
+
 #include <algorithm>
 #include <iostream>
 #include <list>
@@ -59,21 +61,25 @@ public:
     return output;
   }
 
-  const decltype(fromVertices) getFromVertices() { return fromVertices; }
+  const decltype(adjMap) getAdjMap() const { return adjMap; }
 
-  const decltype(toVertices) getToVertices() { return toVertices; }
+  const decltype(fromVertices) getFromVertices() const { return fromVertices; }
 
-  const decltype(totalVertices) getTotalVertices() { return totalVertices; }
+  const decltype(toVertices) getToVertices() const { return toVertices; }
 
-  const decltype(fromVertices.size()) getFromVerticesCount() {
+  const decltype(totalVertices) getTotalVertices() const {
+    return totalVertices;
+  }
+
+  const decltype(fromVertices.size()) getFromVerticesCount() const {
     return fromVertices.size();
   }
 
-  const decltype(toVertices.size()) getToVerticesCount() {
+  const decltype(toVertices.size()) getToVerticesCount() const {
     return toVertices.size();
   }
 
-  const decltype(totalVertices) getTotalVerticesCount() {
+  const decltype(totalVertices.size()) getTotalVerticesCount() const {
     return totalVertices.size();
   }
 
