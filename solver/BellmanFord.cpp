@@ -1,14 +1,23 @@
 #pragma once
 
 #include "AdjacencyList.hpp"
-#include <stdexcept>
 
-int BellmanFord(AdjacencyList<int> graph, int src, int dest) {
+#include <stack>
+#include <stdexcept>
+#include <unordered_map>
+#include <utility>
+
+using namespace std;
+
+pair<int, stack<int>> BellmanFord(AdjacencyList<int> graph, int src, int dest) {
   int numtotalVertices = graph.getTotalVerticesCount();
 
   unordered_map<uint, int> distances;
+  unordered_map<uint, int> parent;
+
   for (auto &it : graph.getTotalVertices()) {
     distances[it] = (INT_MAX);
+    parent[it] = -1;
   }
 
   distances[src] = 0;
@@ -25,6 +34,7 @@ int BellmanFord(AdjacencyList<int> graph, int src, int dest) {
         if (iterator->second + distances[it.first] <
             distances[iterator->first]) {
           distances[iterator->first] = iterator->second + distances[it.first];
+          parent[iterator->first] = it.first;
         }
         ++iterator;
       }
@@ -46,5 +56,12 @@ int BellmanFord(AdjacencyList<int> graph, int src, int dest) {
     }
   }
 
-  return distances[dest];
+  int pathDest = dest;
+  stack<int> st;
+  while (parent[pathDest] != -1) {
+    st.push(pathDest);
+    pathDest = parent[pathDest];
+  }
+
+  return make_pair(distances[dest], st);
 }
