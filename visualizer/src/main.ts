@@ -49,8 +49,6 @@ function processCaliRoads() {
   let roadCoords = RoadNodeCoords.split("\n").map((e) =>
     e.split(" ").map((e) => Number(e))
   );
-  // remove last empty element
-  roadCoords.pop();
 
   // Find max/min lat/lng for coordinate scaling
   let [minLng, maxLng] = [roadCoords[0][1], roadCoords[0][1]];
@@ -92,8 +90,6 @@ function processCaliRoads() {
   const roadEdges = RoadNodeEdges.split("\n").map((e) =>
     e.split(" ").map((e) => Number(e))
   );
-  // remove last empty element
-  roadEdges.pop();
 
   for (const edge of roadEdges) {
     graph.addEdge(edge[1], edge[2], {
