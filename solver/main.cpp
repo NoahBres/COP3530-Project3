@@ -4,10 +4,14 @@
 #include <iostream>
 #include <string>
 
+#include "httplib.h"
+
 #include "AdjacencyList.hpp"
 #include "BellmanFord.cpp"
 
 using namespace std::chrono;
+
+httplib::Server server;
 
 enum GraphSample {
   // To be implemented
@@ -18,7 +22,7 @@ enum GraphSample {
   // Randomly generated graphs
   RandomGraph
 };
-GraphSample graphToUse = DataSet1;
+GraphSample graphToUse = RandomGraph;
 int randomGraphCount = 50;
 unsigned int randomWeightMax = 50;
 
@@ -42,7 +46,7 @@ int main() {
   case DataSet1: {
     auto start = high_resolution_clock::now();
 
-    ifstream dataset("./data/roadNet-CA.txt");
+    ifstream dataset("../data/roadNet-CA.txt");
 
     // Skip first 4 lines
     for (int i = 0; i < 4; i++)
@@ -80,4 +84,31 @@ int main() {
   }
 
   // graph.printGraph(true);
+
+  server.Get("/graph-type", [](const httplib::Request &,
+                               httplib::Response &res) {
+    switch (graphToUse) {
+    case RandomGraph: {
+      res.set_content("{ type: \"random\"}", "application/json");
+      break;
+    }
+    case DataSet1:
+      res.set_content("{ type: \"dataset\", payload: 1}", "application/json");
+      break;
+    default:
+      res.set_content("{ type: \"none\"}", "application/json");
+      break;
+    }
+  });
+
+  server.Get("/solve", [](const httplib::Request &, httplib::Response &res) {
+    // res.set_content("Hey", "text/plain");
+    res.set_content("{hey: \"3\"}", "application/json");
+  });
+
+  server.Get("/stop", [&](const httplib::Request &req, httplib::Response &res) {
+    server.stop();
+  });
+
+  server.listen("0.0.0.0", 8888);
 }
