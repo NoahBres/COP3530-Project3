@@ -1,5 +1,6 @@
 #include "AdjacencyList.hpp"
 #include "BellmanFord.cpp"
+#include "cache.cpp"
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -71,4 +72,27 @@ TEST_CASE("Bellman Ford Path", "[bf]") {
   REQUIRE(solution.second.top() == 4);
   solution.second.pop();
   REQUIRE(solution.second.size() == 0);
+}
+
+TEST_CASE("Path Caching", "[cache]") {
+  stack<int> cachedPath;
+  cachedPath.push(0);
+  cachedPath.push(1);
+  cachedPath.push(2);
+
+  cacheWrite(4, 5, -5, cachedPath, "cache_bellman_temp");
+
+  auto cacheReadOut = cacheRead(5, 4, "cache_bellman_temp");
+
+  REQUIRE(cacheReadOut.first == -5);
+  REQUIRE(cacheReadOut.second.size() == cachedPath.size());
+
+  while (!cacheReadOut.second.empty() || !cachedPath.empty()) {
+    REQUIRE(cachedPath.top() == cacheReadOut.second.top());
+
+    cachedPath.pop();
+    cacheReadOut.second.pop();
+  }
+
+  remove("cache_bellman_temp");
 }
