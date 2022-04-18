@@ -26,6 +26,8 @@ let renderer: Sigma;
 
 const graphOptions = {
   showEdges: true,
+  nodeSize: 1,
+  edgeThickness: 1,
   nodeColor: "#16a34a",
   edgeColor: "#ef4444",
   searchStart: 0,
@@ -38,6 +40,24 @@ const graphOptionsGUI = new GUI();
 graphOptionsGUI
   .add(graphOptions, "showEdges")
   .onChange(() => renderer.refresh());
+graphOptionsGUI
+  .add(graphOptions, "nodeSize", 1, 10, 0.1)
+  .onFinishChange((val: number) => {
+    graph.updateEachNodeAttributes((_, attr) => ({
+      ...attr,
+      size: val,
+    }));
+    renderer.refresh();
+  });
+graphOptionsGUI
+  .add(graphOptions, "edgeThickness", 1, 10, 0.1)
+  .onFinishChange((val: number) => {
+    graph.updateEachEdgeAttributes((_, attr) => ({
+      ...attr,
+      size: val,
+    }));
+    renderer.refresh();
+  });
 graphOptionsGUI.addColor(graphOptions, "nodeColor");
 graphOptionsGUI.addColor(graphOptions, "edgeColor");
 graphOptionsGUI.add(graphOptions, "searchStart", 0, 21407, 1);
@@ -80,7 +100,7 @@ function processCaliRoads() {
     graph.addNode(point[0], {
       x: point[1],
       y: point[2],
-      size: 1,
+      size: graphOptions.nodeSize,
       label: point[0],
       color: graphOptions.nodeColor,
     });
@@ -95,6 +115,7 @@ function processCaliRoads() {
     graph.addEdge(edge[1], edge[2], {
       weight: edge[3],
       color: graphOptions.edgeColor,
+      size: graphOptions.edgeThickness,
     });
   }
 }
