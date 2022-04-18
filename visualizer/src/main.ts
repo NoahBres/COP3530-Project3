@@ -22,6 +22,8 @@ const graphContainer = document.getElementById(
   "graph-container"
 ) as HTMLElement;
 
+let currentPath: number[] = [];
+
 let renderer: Sigma;
 
 const graphOptions = {
@@ -29,10 +31,12 @@ const graphOptions = {
   nodeSize: 1,
   edgeThickness: 1,
   nodeColor: "#16a34a",
+  nodeFoundColor: "#c026d3",
   edgeColor: "#ef4444",
   searchStart: 0,
   searchEnd: 0,
-  searchDjikstra: () => console.log("Test"),
+  searchDjikstra: () => dispatchSearch("dijkstra"),
+  searchBellmanFord: () => dispatchSearch("bellmanford"),
 };
 
 const graphOptionsGUI = new GUI();
@@ -40,7 +44,10 @@ const graphOptionsGUI = new GUI();
 graphOptionsGUI
   .add(graphOptions, "showEdges")
   .onChange(() => renderer.refresh());
-graphOptionsGUI
+
+const folderVisualTweaks = graphOptionsGUI.addFolder("Visuals");
+
+folderVisualTweaks
   .add(graphOptions, "nodeSize", 1, 10, 0.1)
   .onFinishChange((val: number) => {
     graph.updateEachNodeAttributes((_, attr) => ({
@@ -49,7 +56,7 @@ graphOptionsGUI
     }));
     renderer.refresh();
   });
-graphOptionsGUI
+folderVisualTweaks
   .add(graphOptions, "edgeThickness", 1, 10, 0.1)
   .onFinishChange((val: number) => {
     graph.updateEachEdgeAttributes((_, attr) => ({
@@ -58,11 +65,16 @@ graphOptionsGUI
     }));
     renderer.refresh();
   });
-graphOptionsGUI.addColor(graphOptions, "nodeColor");
-graphOptionsGUI.addColor(graphOptions, "edgeColor");
+folderVisualTweaks.addColor(graphOptions, "nodeColor");
+folderVisualTweaks.addColor(graphOptions, "nodeFoundColor");
+folderVisualTweaks.addColor(graphOptions, "edgeColor");
+
 graphOptionsGUI.add(graphOptions, "searchStart", 0, 21407, 1);
 graphOptionsGUI.add(graphOptions, "searchEnd", 0, 21407, 1);
 graphOptionsGUI.add(graphOptions, "searchDjikstra").name("Search - Djikstra");
+graphOptionsGUI
+  .add(graphOptions, "searchBellmanFord")
+  .name("Search - Bellman Ford");
 
 function processCaliRoads() {
   // Process cali road lat/lng data
@@ -126,6 +138,18 @@ renderer = new Sigma(graph, graphContainer);
 renderer.setSetting("nodeReducer", (node, data) => {
   const res: Partial<NodeDisplayData> = { ...data };
 
+  if (currentPath.length != 0) {
+    if (currentPath.includes(Number(node))) {
+      res.color = graphOptions.nodeFoundColor;
+      res.size = graphOptions.nodeSize * 2;
+    } else {
+      res.color = graphOptions.nodeColor;
+      res.size = graphOptions.nodeSize;
+    }
+  } else {
+    res.color = graphOptions.nodeColor;
+  }
+
   return res;
 });
 
@@ -140,3 +164,23 @@ renderer.setSetting("edgeReducer", (edge, data) => {
 
   return res;
 });
+
+function dispatchSearch(type: "dijkstra" | "bellmanford") {
+  console.log("Search", type);
+
+  const url = new URL("http://localhost:8888/search");
+  url.searchParams.set("from", graphOptions.searchStart.toString());
+  url.searchParams.set("to", graphOptions.searchEnd.toString());
+  url.searchParams.set("type", type);
+
+  fetch(url.toString())
+    .then((response) => response.json())
+    .then((data) => {
+      const pathProcessed = data.path.split(",").map((e) => Number(e));
+      pathProcessed.pop();
+
+      currentPath = pathProcessed;
+      console.log(currentPath);
+      renderer.refresh();
+    });
+}
