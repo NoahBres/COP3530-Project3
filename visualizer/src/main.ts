@@ -9,14 +9,6 @@ import "./style.css";
 import RoadNodeCoords from "../../data/cal-road-node-coords.txt?raw";
 import RoadNodeEdges from "../../data/cal-road-edges.txt?raw";
 
-// fetch("http://localhost:8888/graph-type")
-//   .then((response) => response.json())
-//   .then((data) => console.log(data));
-
-// fetch("http://localhost:8888/solve")
-//   .then((response) => response.json())
-//   .then((data) => console.log(data));
-
 const graph = new Graph();
 const graphContainer = document.getElementById(
   "graph-container"
@@ -30,13 +22,14 @@ const graphOptions = {
   showEdges: true,
   nodeSize: 1,
   edgeThickness: 1,
-  nodeColor: "#16a34a",
+  nodeColor: "#ef4444",
   nodeFoundColor: "#c026d3",
-  edgeColor: "#ef4444",
+  edgeColor: "#64748b",
   searchStart: 0,
   searchEnd: 0,
   searchDjikstra: () => dispatchSearch("dijkstra"),
   searchBellmanFord: () => dispatchSearch("bellmanford"),
+  distance: "No distance",
 };
 
 const graphOptionsGUI = new GUI();
@@ -75,6 +68,10 @@ graphOptionsGUI.add(graphOptions, "searchDjikstra").name("Search - Djikstra");
 graphOptionsGUI
   .add(graphOptions, "searchBellmanFord")
   .name("Search - Bellman Ford");
+
+const graphOptionsControllerDistance = graphOptionsGUI
+  .add(graphOptions, "distance")
+  .disable();
 
 function processCaliRoads() {
   // Process cali road lat/lng data
@@ -166,8 +163,6 @@ renderer.setSetting("edgeReducer", (edge, data) => {
 });
 
 function dispatchSearch(type: "dijkstra" | "bellmanford") {
-  console.log("Search", type);
-
   const url = new URL("http://localhost:8888/search");
   url.searchParams.set("from", graphOptions.searchStart.toString());
   url.searchParams.set("to", graphOptions.searchEnd.toString());
@@ -180,7 +175,10 @@ function dispatchSearch(type: "dijkstra" | "bellmanford") {
       pathProcessed.pop();
 
       currentPath = pathProcessed;
-      console.log(currentPath);
+
+      graphOptionsControllerDistance.setValue(
+        `${((data.distance / 1_000_000) * 69).toFixed(3)} mi`
+      );
       renderer.refresh();
     });
 }
