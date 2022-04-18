@@ -8,6 +8,7 @@
 
 #include "AdjacencyList.hpp"
 #include "BellmanFord.cpp"
+#include "cache.cpp"
 
 using namespace std::chrono;
 
@@ -162,27 +163,45 @@ int main() {
       if (type == "dijkstra") {
         res.set_content("Dijkstra not implemented", "text/plain");
       } else if (type == "bellmanford") {
-        cout << "Starting Bellman Ford search..." << endl;
+        auto cacheReadOut = cacheRead(from, to, "cache_bellman");
 
         auto start = high_resolution_clock::now();
 
-        auto solution = BellmanFord(caliGraph, from, to);
+        stack<int> pathStack;
+        int distance;
+
+        cout << cacheReadOut.first << endl;
+        if (cacheReadOut.first != INT_MAX) {
+          cout << "Result retrieved from cache" << endl;
+
+          distance = cacheReadOut.first;
+          pathStack = cacheReadOut.second;
+        } else {
+          cout << "Starting Bellman Ford search..." << endl;
+
+          auto solution = BellmanFord(caliGraph, from, to);
+          distance = solution.first;
+          pathStack = solution.second;
+
+          cacheWrite(from, to, solution.first, solution.second,
+                     "cache_bellman");
+        }
 
         auto stop = high_resolution_clock::now();
         auto duration = duration_cast<milliseconds>(stop - start);
 
         string path = "";
-        while (!solution.second.empty()) {
-          path += to_string(solution.second.top());
+        while (!pathStack.empty()) {
+          path += to_string(pathStack.top());
           path += ",";
-          solution.second.pop();
+          pathStack.pop();
         }
 
-        res.set_content("{\"path\":\"" + path +
-                            "\", \"distance\": " + to_string(solution.first) +
-                            ", \"time\": " + to_string(duration.count()) + " " +
-                            "}",
-                        "application/json");
+        res.set_content(
+            "{\"path\":\"" + path + "\", \"distance\": " + to_string(distance) +
+                ", \"time\": " + to_string(duration.count()) + " " + "}",
+            "application/json");
+
       } else {
         res.set_content("Unsupported type", "text/plain");
       }

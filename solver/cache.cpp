@@ -19,10 +19,9 @@ pair<int, stack<int>> cacheRead(int from, int to, string filePath) {
 
   string line;
   string delimeter = ",";
-  cout << "Read cache: " << endl;
 
   if (!cache.is_open())
-    throw runtime_error("Cannot read file");
+    return make_pair(INT_MAX, output);
 
   while (getline(cache, line)) {
     int fromRead, toRead;
