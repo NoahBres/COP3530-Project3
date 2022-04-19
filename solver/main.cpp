@@ -8,6 +8,7 @@
 
 #include "AdjacencyList.hpp"
 #include "BellmanFord.cpp"
+#include "Dijkstra.cpp"
 #include "cache.cpp"
 
 using namespace std::chrono;
@@ -161,7 +162,44 @@ int main() {
       auto type = req.get_param_value("type");
 
       if (type == "dijkstra") {
-        res.set_content("Dijkstra not implemented", "text/plain");
+        auto cacheReadOut = cacheRead(from, to, "cache_dijkstra");
+
+        auto start = high_resolution_clock::now();
+
+        stack<int> pathStack;
+        int distance;
+
+        cout << cacheReadOut.first << endl;
+        if (cacheReadOut.first != INT_MAX) {
+          cout << "Result retrieved from cache" << endl;
+
+          distance = cacheReadOut.first;
+          pathStack = cacheReadOut.second;
+        } else {
+          cout << "Starting Dijkstra search..." << endl;
+
+          auto solution = Dijkstra(caliGraph, from, to);
+          distance = solution.first;
+          pathStack = solution.second;
+
+          cacheWrite(from, to, solution.first, solution.second,
+                     "cache_dijkstra");
+        }
+
+        auto stop = high_resolution_clock::now();
+        auto duration = duration_cast<milliseconds>(stop - start);
+
+        string path = "";
+        while (!pathStack.empty()) {
+          path += to_string(pathStack.top());
+          path += ",";
+          pathStack.pop();
+        }
+
+        res.set_content(
+            "{\"path\":\"" + path + "\", \"distance\": " + to_string(distance) +
+                ", \"time\": " + to_string(duration.count()) + " " + "}",
+            "application/json");
       } else if (type == "bellmanford") {
         auto cacheReadOut = cacheRead(from, to, "cache_bellman");
 
