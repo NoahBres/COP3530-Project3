@@ -5,6 +5,7 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
+// Unit tests for development
 TEST_CASE("Bellman Ford Search 1", "[bf]") {
   AdjacencyList<int> graph1;
 

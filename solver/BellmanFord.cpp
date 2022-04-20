@@ -15,6 +15,7 @@ pair<int, stack<int>> BellmanFord(AdjacencyList<int> graph, int src, int dest) {
   unordered_map<uint, int> distances;
   unordered_map<uint, int> parent;
 
+  // Initialization
   for (auto &it : graph.getTotalVertices()) {
     distances[it] = (INT_MAX);
     parent[it] = -1;
@@ -41,6 +42,7 @@ pair<int, stack<int>> BellmanFord(AdjacencyList<int> graph, int src, int dest) {
     }
   }
 
+  // Check for negative cycles
   for (auto &it : graph.getAdjMap()) {
     auto iterator = it.second.begin();
     while (iterator != it.second.end()) {
@@ -49,6 +51,7 @@ pair<int, stack<int>> BellmanFord(AdjacencyList<int> graph, int src, int dest) {
         continue;
       }
       if (iterator->second + distances[it.first] < distances[iterator->first]) {
+        // Throw error on negative cycle
         throw std::runtime_error("Negative edge cycle not supported");
       }
 
@@ -56,6 +59,7 @@ pair<int, stack<int>> BellmanFord(AdjacencyList<int> graph, int src, int dest) {
     }
   }
 
+  // Calculate path
   int pathDest = dest;
   stack<int> st;
   while (parent[pathDest] != -1) {

@@ -12,9 +12,11 @@
 
 using namespace std;
 
+// Unsigned ints used for ids
 using uint = unsigned int;
 
 // Directed graph
+// Accept only arithmetic typing
 template <typename T,
           typename =
               typename std::enable_if<std::is_arithmetic<T>::value, T>::type>
@@ -29,6 +31,7 @@ private:
                      // since we dont support edge delete operations
 
 public:
+  // Insert edge (directed)
   void insertEdge(uint from, uint to, T weight) {
     adjMap[from][to] = weight;
 
@@ -61,6 +64,7 @@ public:
     return output;
   }
 
+  // Getters for the internal properties
   const decltype(adjMap) getAdjMap() const { return adjMap; }
 
   const decltype(fromVertices) getFromVertices() const { return fromVertices; }
@@ -83,6 +87,9 @@ public:
     return totalVertices.size();
   }
 
+  // Print graph for debugging purposes
+  // Prints out from vertices and connected edges with their weights
+  // Edge ID: To ID (weight), To ID (weight), To ID (Weight)
   void printGraph(bool sorted = false) {
     cout << "Graph: " << endl << endl;
 

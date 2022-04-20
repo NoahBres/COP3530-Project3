@@ -12,6 +12,7 @@ pair<int, stack<int>> Dijkstra(AdjacencyList<int> graph, int src, int dest) {
   unordered_map<uint, bool> checker;
   unordered_map<uint, int> parent;
 
+  // Initialization
   for (auto &it : graph.getTotalVertices()) {
     distances[it] = INT_MAX;
     checker[it] = false;
@@ -46,6 +47,7 @@ pair<int, stack<int>> Dijkstra(AdjacencyList<int> graph, int src, int dest) {
     }
   }
 
+  // Calculate path
   int pathDest = dest;
   stack<int> st;
   while (parent[pathDest] != -1) {

@@ -95,10 +95,12 @@ int main() {
         searchMethod = &BellmanFord;
       }
 
+      // Check cache for results
       auto cacheReadOut = cacheRead(from, to, cacheReadFilePath);
 
       auto start = high_resolution_clock::now();
 
+      // If cache exists
       if (cacheReadOut.first != INT_MAX) {
         cout << "Result retrieved from cache" << endl;
 
@@ -107,10 +109,12 @@ int main() {
       } else {
         cout << "Starting search..." << endl;
 
+        // Run search
         auto solution = searchMethod(caliGraph, from, to);
         distance = solution.first;
         pathStack = solution.second;
 
+        // Write search result to cache
         cacheWrite(from, to, solution.first, solution.second,
                    cacheReadFilePath);
       }
@@ -118,6 +122,7 @@ int main() {
       auto stop = high_resolution_clock::now();
       auto duration = duration_cast<milliseconds>(stop - start);
 
+      // Convert path stack to string for JSON response
       string path = "";
       while (!pathStack.empty()) {
         path += to_string(pathStack.top());
@@ -125,6 +130,8 @@ int main() {
         pathStack.pop();
       }
 
+      // Return JSON response
+      // Path, distance, and time taken
       res.set_content(
           "{\"path\":\"" + path + "\", \"distance\": " + to_string(distance) +
               ", \"time\": " + to_string(duration.count()) + " " + "}",
@@ -132,9 +139,11 @@ int main() {
     }
   });
 
+  // Request to stop server
   server.Get("/stop", [&](const httplib::Request &req, httplib::Response &res) {
     server.stop();
   });
 
+  // Start HTTP server
   server.listen("0.0.0.0", 8888);
 }
